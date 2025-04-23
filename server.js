@@ -1,17 +1,26 @@
-const io = require("socket.io")(3001, {
-    cors: {
-        // Allow requests from this origin
-        origin: 'http://localhost:3000',
-        methods: ["GET", "POST"]
-    },
-})
+const { Server } = require("socket.io");
+const http = require("http");
 
-// Set up an event listener for new client connections
+const express = require("express");
+const app = express();
+
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:3000", // Replace with your deployed frontend
+    methods: ["GET", "POST"]
+  },
+});
+
 io.on('connection', (socket) => {
-    console.log("User connected!");
+  console.log("User connected!");
 
-    socket.on("notifyUser", () => {
-   // Broadcast a 'notifyUser' event to all connected clients with a message
-        io.emit("notifyUser", "Notification From Admin")
-    })
-})
+  socket.on("notifyUser", () => {
+    io.emit("notifyUser", "Notification From Admin");
+  });
+});
+
+const PORT = process.env.PORT || 3001;
+server.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
